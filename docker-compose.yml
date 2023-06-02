@@ -1,0 +1,9 @@
+services:
+  app:
+    build: .
+    container_name: python-playground
+    command: python src/word-count-app.py
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
