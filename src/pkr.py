@@ -93,6 +93,7 @@ def compare_hands_endpoint():
 
     result = compare(hand1, hand2)
 
+    # we can return whatever json we want here but for simplicity i'm just returning the result
     if result == 1:
         return {'result': 'Hand 1 wins!'}, 200
     elif result == -1:
