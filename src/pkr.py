@@ -33,7 +33,7 @@ def hand_rank(cards):
     
     # Straight
     if is_straight(cards):
-        return STRAIGHT_FLUSH + max([ace_low_rank(card) for card in cards])
+        return STRAIGHT + max([ace_low_rank(card) for card in cards])
     
     # Flush
     if is_flush(cards):
@@ -41,7 +41,7 @@ def hand_rank(cards):
     
     # only calculating this after we have ruled out a straight flush or a straight or a flush
     # since those don't rely on counting how many ranks are in a hand
-    hand_ranks = [card[0] for card in cards]
+    hand_ranks = [rank(card) for card in cards]
     counts = [hand_ranks.count(card) for card in hand_ranks]
 
     # Three of a kind
@@ -50,27 +50,31 @@ def hand_rank(cards):
     
     # Pair
     if 2 in counts:
-        pair_rank = max([rank(card) for card in cards if cards.count(card) == 2])
+        pair_rank = max([rank(card) for card in cards if hand_ranks.count(rank(card)) == 2])
         return PAIR + pair_rank
     
     # High card
     return max([rank(card) for card in cards])
 
+# wrote this so that:
+# 1  | hand1 > hand2
+# 0  | hand1 == hand2
+# -1 | hand1 < hand2
 def compare(hand1, hand2):
     rank1 = hand_rank(hand1)
     rank2 = hand_rank(hand2)
 
     if rank1 != rank2:
-        return 1 if rank1 > rank2 else 2
+        return 1 if rank1 > rank2 else -1
     
     # sort in descending order
     hand1.sort(key=lambda card: -rank(card))
     hand2.sort(key=lambda card: -rank(card))
 
-    # compare the now sorted cards if the hands have the same high card for the first difference in ranks
+    # compare the now sorted cards, check for the first difference in ranks by card
     for card1, card2 in zip(hand1, hand2):
         if rank(card1) != rank(card2):
-            return 1 if rank(card1) > rank(card2) else 2
+            return 1 if rank(card1) > rank(card2) else -1
         
     return 0
 
@@ -91,7 +95,7 @@ def compare_hands_endpoint():
 
     if result == 1:
         return {'result': 'Hand 1 wins!'}, 200
-    elif result == 2:
+    elif result == -1:
         return {'result': 'Hand 2 wins!'}, 200
     else:
         return {'result': "It's a tie!"}, 200
